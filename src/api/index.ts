@@ -2,17 +2,15 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { News } from "../domain";
 
 export const useAPI = () => {
-  // キー情報
-  const VITE_NEWS_API_KEY = "b3f26b82433b49978da7f07f3d2a5383";
-  const VITE_GEMINI_API_KEY = "AIzaSyDzHGDwxb8Nakjq_rlp2qvTl3mVwArofmU";
-
   // geminiの事前設定
-  const genAI = new GoogleGenerativeAI(VITE_GEMINI_API_KEY);
+  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   // ニュース取得
   const fetchNews = async (inputText: string) => {
-    const res = await fetch(`https://newsapi.org/v2/everything?q=${inputText}&apiKey=${VITE_NEWS_API_KEY}`);
+    const res = await fetch(
+      `https://newsapi.org/v2/everything?q=${inputText}&apiKey=${import.meta.env.VITE_NEWS_API_KEY}`
+    );
     const data = await res.json();
 
     // 最初のデータを取得
