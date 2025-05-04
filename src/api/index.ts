@@ -1,11 +1,19 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { News } from "../domain";
 
-export const useAPI = () => {
-  // geminiの事前設定
-  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// geminiの事前設定
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
+// gemini問い合わせ
+const _listenGemini = async (description: string) => {
+  const prompt = `次の文章を日本語にして、小学生がわかるように変更してください。\n${description}`;
+  const result = await model.generateContent(prompt);
+  const res = await result.response;
+  return res.text();
+};
+
+export const useAPI = () => {
   // ニュース取得
   const fetchNews = async (inputText: string) => {
     const res = await fetch(
@@ -17,18 +25,11 @@ export const useAPI = () => {
     const firstNews = data.articles[0];
     const { title, description, url } = firstNews;
 
-    return new News(title, description, url, "");
+    // geminiの変換結果を取得
+    const geminiDescription = await _listenGemini(description);
+
+    return new News(title, description, url, geminiDescription);
   };
 
-  // gemini問い合わせ
-  const listenGemini = async (news: News) => {
-    // geminiへの問い合わせ
-    const prompt = `次の文章を日本語にして、小学生がわかるように変更してください。\n${news.description}`;
-    const result = await model.generateContent(prompt);
-    const res = await result.response;
-    news.geminiDescription = res.text();
-    return news;
-  };
-
-  return { fetchNews, listenGemini };
+  return { fetchNews };
 };

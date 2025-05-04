@@ -7,19 +7,14 @@ function App() {
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
   const [newsData, setNewsData] = useState<News | null>(null);
-  const { fetchNews, listenGemini } = useAPI();
+  const { fetchNews } = useAPI();
 
   // 検索
   const handleSearch = async () => {
     setLoading(true);
-
     // ニュース取得
     const fetchedNews = await fetchNews(inputText);
-    // 取得したニュースを基にGeminiに読み込ませる
-    const news = await listenGemini(fetchedNews);
-
-    // 設定
-    setNewsData(news);
+    setNewsData(fetchedNews); // 設定
     setLoading(false);
   };
 
